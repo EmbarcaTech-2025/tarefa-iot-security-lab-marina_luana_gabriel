@@ -2,17 +2,17 @@
 
 # Tarefa: IoT Security Lab - EmbarcaTech 2025
 
-Autor: **Insira Seu Nome**
+Autores: Marina Soler Donaire, Luana Varela Vacari, Gabriel Mattano da Silva
 
 Curso: Residência Tecnológica em Sistemas Embarcados
 
 Instituição: EmbarcaTech - HBr
 
-Campinas, ___ de 2025
+Campinas, Junho de 2025
 
 ---
 
-<!-- INSIRA O CONTEÚDO DO SEU README AQUI! -->
+A tarefa está dividida em 2 projetos: `seguranca_iot_pub` para a BitDogLab publisher e `seguranca_iot_sub` para a BitDogLab subscriber.
 
 ---
 

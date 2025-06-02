@@ -1,7 +1,7 @@
-#include "lwip/apps/mqtt.h"       // Biblioteca MQTT do lwIP
-#include "include/mqtt_comm.h"    // Header file com as declarações locais
+#include "lwip/apps/mqtt.h"    // Biblioteca MQTT do lwIP
+#include "include/mqtt_conn.h" // Header file com as declarações locais
 // Base: https://github.com/BitDogLab/BitDogLab-C/blob/main/wifi_button_and_led/lwipopts.h
-#include "lwipopts.h"             // Configurações customizadas do lwIP
+#include "lwipopts.h" // Configurações customizadas do lwIP
 
 /* Variável global estática para armazenar a instância do cliente MQTT
  * 'static' limita o escopo deste arquivo */
@@ -12,10 +12,14 @@ static mqtt_client_t *client;
  *   - client: instância do cliente MQTT
  *   - arg: argumento opcional (não usado aqui)
  *   - status: resultado da tentativa de conexão */
-static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
-    if (status == MQTT_CONNECT_ACCEPTED) {
+static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status)
+{
+    if (status == MQTT_CONNECT_ACCEPTED)
+    {
         printf("Conectado ao broker MQTT com sucesso!\n");
-    } else {
+    }
+    else
+    {
         printf("Falha ao conectar ao broker, código: %d\n", status);
     }
 }
@@ -26,27 +30,30 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
  *   - broker_ip: endereço IP do broker como string (ex: "192.168.1.1")
  *   - user: nome de usuário para autenticação (pode ser NULL)
  *   - pass: senha para autenticação (pode ser NULL) */
-void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, const char *pass) {
-    ip_addr_t broker_addr;  // Estrutura para armazenar o IP do broker
-    
+void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, const char *pass)
+{
+    ip_addr_t broker_addr; // Estrutura para armazenar o IP do broker
+
     // Converte o IP de string para formato numérico
-    if (!ip4addr_aton(broker_ip, &broker_addr)) {
+    if (!ip4addr_aton(broker_ip, &broker_addr))
+    {
         printf("Erro no IP\n");
         return;
     }
 
     // Cria uma nova instância do cliente MQTT
     client = mqtt_client_new();
-    if (client == NULL) {
+    if (client == NULL)
+    {
         printf("Falha ao criar o cliente MQTT\n");
         return;
     }
 
     // Configura as informações de conexão do cliente
     struct mqtt_connect_client_info_t ci = {
-        .client_id = client_id,  // ID do cliente
-        .client_user = user,     // Usuário (opcional)
-        .client_pass = pass      // Senha (opcional)
+        .client_id = client_id, // ID do cliente
+        .client_user = user,    // Usuário (opcional)
+        .client_pass = pass     // Senha (opcional)
     };
 
     // Inicia a conexão com o broker
@@ -65,10 +72,14 @@ void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, 
  * Parâmetros:
  *   - arg: argumento opcional
  *   - result: código de resultado da operação */
-static void mqtt_pub_request_cb(void *arg, err_t result) {
-    if (result == ERR_OK) {
+static void mqtt_pub_request_cb(void *arg, err_t result)
+{
+    if (result == ERR_OK)
+    {
         printf("Publicação MQTT enviada com sucesso!\n");
-    } else {
+    }
+    else
+    {
         printf("Erro ao publicar via MQTT: %d\n", result);
     }
 }
@@ -78,7 +89,8 @@ static void mqtt_pub_request_cb(void *arg, err_t result) {
  *   - topic: nome do tópico (ex: "sensor/temperatura")
  *   - data: payload da mensagem (bytes)
  *   - len: tamanho do payload */
-void mqtt_comm_publish(const char *topic, const uint8_t *data, size_t len) {
+void mqtt_comm_publish(const char *topic, const uint8_t *data, size_t len)
+{
     // Envia a mensagem MQTT
     err_t status = mqtt_publish(
         client,              // Instância do cliente
@@ -91,7 +103,30 @@ void mqtt_comm_publish(const char *topic, const uint8_t *data, size_t len) {
         NULL                 // Argumento para o callback
     );
 
-    if (status != ERR_OK) {
+    if (status != ERR_OK)
+    {
         printf("mqtt_publish falhou ao ser enviada: %d\n", status);
+    }
+}
+
+/**
+ * Função para aplicar cifra XOR (criptografia/decifração)
+ * 
+ * @param input  Ponteiro para os dados de entrada (texto claro ou cifrado)
+ * @param output Ponteiro para armazenar o resultado (deve ter tamanho >= len)
+ * @param len    Tamanho dos dados em bytes
+ * @param key    Chave de 1 byte (0-255) para operação XOR
+ * 
+ * Funcionamento:
+ * - Aplica operação XOR bit-a-bit entre cada byte do input e a chave
+ * - XOR é reversível: mesma função para cifrar e decifrar
+ * - Criptografia fraca (apenas para fins didáticos ou ofuscação básica)
+ */
+void xor_encrypt(const uint8_t *input, uint8_t *output, size_t len, uint8_t key) {
+    // Loop por todos os bytes dos dados de entrada
+    for (size_t i = 0; i < len; ++i) {
+        // Operação XOR entre o byte atual e a chave
+        // Armazena resultado no buffer de saída
+        output[i] = input[i] ^ key;
     }
 }
